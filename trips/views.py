@@ -62,6 +62,9 @@ class SignupView(APIView):
         user = User.objects.create_user(username=username, password=password, home_country=home_country)
         user.save()
 
+        user_profile = UserProfile(user=user, home_country=home_country)
+        user_profile.save()
+
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
