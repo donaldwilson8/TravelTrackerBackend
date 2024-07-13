@@ -23,11 +23,6 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
-class CountryList(APIView):
-    def get(self, request):
-        countries = [name for code, name in countries_for_language('en')]
-        return Response(countries)
     
 class UserVisitedCountries(APIView):
     permission_classes = [permissions.IsAuthenticated]

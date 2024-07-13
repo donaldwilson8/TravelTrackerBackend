@@ -8,7 +8,7 @@ COUNTRIES = [name for code, name in countries_for_language('en')]
 # Create your models here.
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    home_country = models.CharField(max_length=100, choices=[(country, country) for country in COUNTRIES])
+    home_country = models.CharField(max_length=100)
 
     def __str__(self):
         return self.user.username
@@ -16,7 +16,7 @@ class UserProfile(models.Model):
 
 class Trip(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips')
-    country = models.CharField(max_length=100, choices=[(country, country) for country in COUNTRIES])
+    country = models.CharField(max_length=100)
     date_visited = models.DateField()
 
     def __str__(self):
