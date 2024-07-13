@@ -29,7 +29,7 @@ class UserVisitedCountries(APIView):
   
     def get(self, request):
         print(f"User {request.user} is trying to get their visited countries")
-        trips = Trip.objects.filter(user_id=request.user).values_list('country', flat=True).distinct()
+        trips = Trip.objects.filter(user=request.user).values_list('country', flat=True).distinct()
         return Response(trips)
         
 
