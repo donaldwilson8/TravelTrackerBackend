@@ -59,7 +59,7 @@ class SignupView(APIView):
         if User.objects.filter(username=username).exists():
             return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.create_user(username=username, password=password, home_country=home_country)
+        user = User.objects.create_user(username=username, password=password)
         user.save()
 
         user_profile = UserProfile(user=user, home_country=home_country)
