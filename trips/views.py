@@ -10,12 +10,18 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from .models import UserProfile, Trip
 from .serializers import UserProfileSerializer, TripSerializer
-from country_list import countries_for_language
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def me(self, request):
+        user_profile = UserProfile.objects.get(user=request.user)
+        serializer = self.get_serializer(user_profile)
+        return Response(serializer.data)
+    
 
 class TripViewSet(viewsets.ModelViewSet):
     queryset = Trip.objects.all()
@@ -31,6 +37,7 @@ class TripViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user_trips, many=True)
         return Response(serializer.data)
     
+
 class UserVisitedCountries(APIView):
     permission_classes = [permissions.IsAuthenticated]
   
@@ -40,19 +47,19 @@ class UserVisitedCountries(APIView):
         return Response(trips)
         
 
-    
 class SignupView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        if not username or not password:
-            return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+        home_country = request.data.get('home_country')
+        if not username or not password or not home_country:
+            return Response({'error': 'Username, password, and home_country are required'}, status=status.HTTP_400_BAD_REQUEST)
         if User.objects.filter(username=username).exists():
             return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=username, password=password, home_country=home_country)
         user.save()
 
         refresh = RefreshToken.for_user(user)
@@ -62,6 +69,7 @@ class SignupView(APIView):
             'user_id': user.id,
         }, status=status.HTTP_201_CREATED)
     
+
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         credentials = {
@@ -87,5 +95,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['user_id'] = user.id
         return token
     
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

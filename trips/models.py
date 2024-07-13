@@ -1,9 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from country_list import countries_for_language
-
-COUNTRIES = [name for code, name in countries_for_language('en')]
-
 
 # Create your models here.
 class UserProfile(models.Model):
