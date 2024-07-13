@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, permissions, status, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -23,15 +24,12 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-    
-class UserVisitedCountries(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-  
-    def get(self, request):
-        print(f"User {request.user} is trying to get their visited countries")
-        trips = Trip.objects.filter(user=request.user).values_list('country', flat=True).distinct()
-        return Response(trips)
-        
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.IsAuthenticated])
+    def my_trips(self, request):
+        user_trips = Trip.objects.filter(user=request.user)
+        serializer = self.get_serializer(user_trips, many=True)
+        return Response(serializer.data)
 
     
 class SignupView(APIView):
