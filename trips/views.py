@@ -30,6 +30,15 @@ class TripViewSet(viewsets.ModelViewSet):
         user_trips = Trip.objects.filter(user=request.user)
         serializer = self.get_serializer(user_trips, many=True)
         return Response(serializer.data)
+    
+class UserVisitedCountries(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+  
+    def get(self, request):
+        print(f"User {request.user} is trying to get their visited countries")
+        trips = Trip.objects.filter(user=request.user).values_list('country', flat=True).distinct()
+        return Response(trips)
+        
 
     
 class SignupView(APIView):
